@@ -13,6 +13,9 @@ import { Button, Grid, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddRecodeModal from "./AddRecodeModal";
+import ApiServices from "../Serveces/Apiservices";
+import getData from "../Serveces/Apiservices";
+import swal from "sweetalert";
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -54,17 +57,43 @@ export default function ListEmployees() {
   const [open, setOpen] = React.useState(false);
   const [lstTodos, setLstTodos] = useState<any>();
 
-  function deleteData(id: any) {
-    fetch(`https://dummyjson.com/products/${id}`, {
-      method: "DELETE",
-    })
+  async function deleteData(id: string) {
+    try {
+      await swal({
+        title: "Are you sure?",
+        text: "Once deleted, you will not be able to recover this imaginary file!",
+        icon: "warning",
+        // buttons: true,
+        dangerMode: true,
+      }).then((willDelete) => {
+        if (willDelete) {
+          fetch(`https://dummyjson.com/posts/${id}`, {
+            method: "DELETE",
+          })
+            .then((res) => res.json())
+            .then((response) => response);
+          swal("Your Recode  has been deleted!", {
+            icon: "success",
+          });
+        } else {
+          swal("Your  Recode is safe!");
+        }
+      });
+    } catch {
+      console.log("not Found");
+    }
+  }
+  // const lstData = getData();
+  async function getData() {
+    const url = "https://dummyjson.com/users";
+    await fetch(url)
       .then((res) => res.json())
-      .then((response) => console.log(response));
+      .then((result) => {
+        setLstTodos(result);
+      });
   }
   useEffect(() => {
-    fetch(`https://dummyjson.com/posts`)
-      .then((response) => response.json())
-      .then((result) => setLstTodos(result));
+    getData();
   }, []);
   return (
     <Box>
@@ -80,19 +109,25 @@ export default function ListEmployees() {
           <TableHead>
             <TableRow>
               <StyledTableCell>Id</StyledTableCell>
-              <StyledTableCell align="center">Title</StyledTableCell>
-              <StyledTableCell align="right">Body</StyledTableCell>
+              <StyledTableCell align="center">FirstName</StyledTableCell>
+              <StyledTableCell align="center">LastName</StyledTableCell>
+              <StyledTableCell align="center">Phon</StyledTableCell>
               <StyledTableCell align="right">Action</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {lstTodos?.posts.map((item: any) => (
+            {lstTodos?.users.map((item: any) => (
               <StyledTableRow key={item.id}>
                 <StyledTableCell component="th" scope="row">
                   {item.id}
                 </StyledTableCell>
-                <StyledTableCell align="center">{item.title}</StyledTableCell>
-                <StyledTableCell align="right">{item.userId}</StyledTableCell>
+                <StyledTableCell align="center">
+                  {item.firstName}
+                </StyledTableCell>
+                <StyledTableCell align="center">
+                  {item.lastName}
+                </StyledTableCell>
+                <StyledTableCell align="center">{item.phone}</StyledTableCell>
                 <StyledTableCell align="right">
                   <Grid
                     container
