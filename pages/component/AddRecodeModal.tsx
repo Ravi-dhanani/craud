@@ -1,15 +1,14 @@
-import * as React from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
+import * as React from "react";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import swal from "sweetalert";
+import * as yup from "yup";
 
 interface IAddRecodeModalProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,19 +35,19 @@ export default function AddRecodeModal(props: IAddRecodeModalProps) {
   } = useForm<IFormInputs>({
     resolver: yupResolver(schema),
   });
-  const onSubmit = (data: IFormInputs) => {
+  const onSubmit = async (data: IFormInputs) => {
     try {
-      fetch("	https://dummy.restapiexample.com/api/v1/create", {
+      fetch("	https://crude-ca1ec-default-rtdb.firebaseio.com/basic.json", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: data.name,
-          salary: data.name,
-          age: data.name,
+          salary: data.salary,
+          age: data.age,
         }),
       })
         .then((res) => res.json())
-        .then(console.log);
+        .then();
       swal({
         title: "Recode Insert SuccessFully",
         text: "You clicked the button!",

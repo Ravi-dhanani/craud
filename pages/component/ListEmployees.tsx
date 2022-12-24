@@ -1,6 +1,7 @@
-import { Box } from "@mui/system";
-import React, { useEffect, useState } from "react";
-
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { Button, Grid, IconButton } from "@mui/material";
+import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,14 +9,11 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Button, Grid, IconButton } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import AddRecodeModal from "./AddRecodeModal";
-import ApiServices from "../Serveces/Apiservices";
-import getData from "../Serveces/Apiservices";
-import swal from "sweetalert";
+import { Box } from "@mui/system";
+import React, { useEffect, useState } from "react";
+import Apiservices from "../Serveces/Apiservices";
+import AddImage from "./AddImage";
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     backgroundColor: theme.palette.common.black,
@@ -55,46 +53,20 @@ const rows = [
 ];
 export default function ListEmployees() {
   const [open, setOpen] = React.useState(false);
-  const [lstTodos, setLstTodos] = useState<any>();
+  const [lstTodos, setLstTodos] = useState<any>([]);
+  const [item, setItem] = useState<any>();
 
-  async function deleteData(id: string) {
-    try {
-      await swal({
-        title: "Are you sure?",
-        text: "Once deleted, you will not be able to recover this imaginary file!",
-        icon: "warning",
-        // buttons: true,
-        dangerMode: true,
-      }).then((willDelete) => {
-        if (willDelete) {
-          fetch(`https://dummyjson.com/posts/${id}`, {
-            method: "DELETE",
-          })
-            .then((res) => res.json())
-            .then((response) => response);
-          swal("Your Recode  has been deleted!", {
-            icon: "success",
-          });
-        } else {
-          swal("Your  Recode is safe!");
-        }
-      });
-    } catch {
-      console.log("not Found");
-    }
-  }
-  // const lstData = getData();
-  async function getData() {
-    const url = "https://dummyjson.com/users";
-    await fetch(url)
-      .then((res) => res.json())
-      .then((result) => {
-        setLstTodos(result);
-      });
-  }
+  const getData = async () => {
+    const data = await Apiservices.getAllRecode();
+    setLstTodos(data.docs.map((doc) => ({ ...doc.data(), id: doc.id } as any)));
+  };
   useEffect(() => {
     getData();
   }, []);
+  const deleteRecode = async (id: any) => {
+    await Apiservices.deleteRecode(id);
+    getData();
+  };
   return (
     <Box>
       <Box
@@ -116,10 +88,10 @@ export default function ListEmployees() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {lstTodos?.users.map((item: any) => (
+            {lstTodos?.map((item: any, index: number) => (
               <StyledTableRow key={item.id}>
                 <StyledTableCell component="th" scope="row">
-                  {item.id}
+                  {index + 1}
                 </StyledTableCell>
                 <StyledTableCell align="center">
                   {item.firstName}
@@ -127,7 +99,7 @@ export default function ListEmployees() {
                 <StyledTableCell align="center">
                   {item.lastName}
                 </StyledTableCell>
-                <StyledTableCell align="center">{item.phone}</StyledTableCell>
+                <StyledTableCell align="center">{item.phon}</StyledTableCell>
                 <StyledTableCell align="right">
                   <Grid
                     container
@@ -136,17 +108,18 @@ export default function ListEmployees() {
                   >
                     <Grid xs={6}>
                       <Box>
-                        <IconButton>
+                        <IconButton
+                          onClick={() => {
+                            setItem(item);
+                            setOpen(true);
+                          }}
+                        >
                           <EditIcon />
                         </IconButton>
                       </Box>
                     </Grid>
                     <Grid xs={6}>
-                      <IconButton
-                        onClick={() => {
-                          deleteData(item.id);
-                        }}
-                      >
+                      <IconButton onClick={() => deleteRecode(item.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </Grid>
@@ -157,7 +130,7 @@ export default function ListEmployees() {
           </TableBody>
         </Table>
       </TableContainer>
-      {open && <AddRecodeModal setOpen={setOpen} open={open} />}
+      {open && <AddImage setOpen={setOpen} open={open} item={item} />}
     </Box>
   );
 }

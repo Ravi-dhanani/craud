@@ -1,14 +1,33 @@
-import { useState } from "react";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../firebaseConfig";
+const dbConnect = collection(db, "employee");
+class ApiServices {
+  addRecode = (newRecode: any) => {
+    return addDoc(dbConnect, newRecode);
+  };
+  updateRecode = (id: any, updatedRecode: any) => {
+    const employee = doc(db, "employee", id);
 
-export default async function getData() {
-  const url = "https://dummyjson.com/posts";
-  const [data, setData] = useState();
-  try {
-    await fetch(url)
-      .then((res) => res.json())
-      .then((result) => setData(result));
-  } catch {
-    console.log("not Data");
-  }
-  return data;
+    return updateDoc(employee, updatedRecode);
+  };
+  deleteRecode = (id: any) => {
+    const employee = doc(db, "employee", id);
+    return deleteDoc(employee);
+  };
+  getAllRecode = () => {
+    return getDocs(dbConnect);
+  };
+  getSigleRecode = (id: any) => {
+    const data = doc(db, "employee", id);
+    return getDoc(data);
+  };
 }
+export default new ApiServices();
